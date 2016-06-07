@@ -35,7 +35,7 @@ Copy the `AgentWso2ESB-x.y.jar` and `AgentJava-x.y.jar` to `$WSO2_ESB_HOME/repos
 ### 2. Configuring the agent
 As WSO2 ESB agent uses [Java agent](https://github.com/Aino-io/agent-java), it must be configured according
 to [Java Agent Configuration](https://github.com/Aino-io/agent-java#configuring-the-agent).
-Java agent configuration should be in `$WSO2_ESB_HOME/repository/conf/ainoLogMediatorConf.xml`, where
+Java agent configuration should be in `$WSO2_ESB_HOME/repository/conf/ainoLogMediatorConfig.xml`, where
 `$WSO2_ESB_HOME` is your WSO2 ESB installation directory.
 
 Additionally, one configured 'application' _*must*_ have key `esb`.

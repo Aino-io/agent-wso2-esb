@@ -7,6 +7,9 @@ dependencies:
   # Cache maven local repository so that we don't have to get dependencies every time
   cache_directories:
     - ~/.m2/repository
+  
+  override:
+    - mvn clean install
 
 test:
   override:

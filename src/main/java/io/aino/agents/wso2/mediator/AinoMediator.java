@@ -22,7 +22,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Iterator;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.synapse.MessageContext;
@@ -202,8 +201,53 @@ public class AinoMediator extends AbstractMediator {
         new IdPropertyBuilder(this.idList).buildToContext(context, transaction);
 
         processTransaction(context, transaction);
+        logToEsb(context, transaction);
 
         return true;
+    }
+
+    private void logToEsb(MessageContext context, Transaction transaction) {
+        StringBuilder sb = new StringBuilder();
+
+        for (MediatorProperty prop : customProperties) {
+            sb.append(prop.getName()).append(" = ").append(prop.getValue());
+            sb.append(this.separator);
+        }
+
+        if(transaction != null) {
+            appendNormalFieldsToLogMessage(transaction, sb);
+            appendIdsToLogMessage(transaction, sb);
+        }
+
+        log.info(sb.toString());
+    }
+
+    private void appendIdsToLogMessage(Transaction transaction, StringBuilder sb) {
+        sb.append("ids = [");
+        for(String idName : transaction.getIds().keySet()) {
+            sb.append(idName).append(": [");
+            List<String> ids = transaction.getIds().get(idName);
+            sb.append(StringUtils.join(ids, ",")).append("],");
+        }
+        sb.append("]");
+    }
+
+    private void appendNormalFieldsToLogMessage(Transaction transaction, StringBuilder sb) {
+        appendNameAndValueToLogMessage("operation",ainoAgent.getAgentConfig().getOperations().getEntry(transaction.getOperationKey()), sb);
+        appendNameAndValueToLogMessage("flowId", transaction.getFlowId(), sb);
+        appendNameAndValueToLogMessage("message", transaction.getMessage(), sb);
+        appendNameAndValueToLogMessage("status", transaction.getStatus(), sb);
+        appendNameAndValueToLogMessage("payloadType", ainoAgent.getAgentConfig().getPayloadTypes().getEntry(transaction.getPayloadTypeKey()), sb);
+        appendNameAndValueToLogMessage("from", ainoAgent.getAgentConfig().getApplications().getEntry(transaction.getFromKey()), sb);
+        appendNameAndValueToLogMessage("to", ainoAgent.getAgentConfig().getApplications().getEntry(transaction.getToKey()), sb);
+        appendNameAndValueToLogMessage("ainoTimestamp", String.valueOf(transaction.getTimestamp()), sb);
+    }
+
+    private void appendNameAndValueToLogMessage(String name, String value, StringBuilder sb) {
+        sb.append(name)
+                .append(" = ")
+                .append(value)
+                .append(this.separator);
     }
 
 
